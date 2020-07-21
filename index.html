@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>SCoPEx Control</title>
+        <link rel="stylesheet" href="node_modules/xel/themes/macos.css">
+        <script src="node_modules/xel/xel.min.js"></script>
+        <script src="index.js"></script>
+        <script src="dataParser.js"></script>
+        <script src="graphics.js"></script>
+        <script src="GUI.js"></script>
+        <!--<link rel="stylesheet" href="./stylesheets/windows.css">
+        <link rel="stylesheet" type="text/css" href="stylesheets/modules.css">-->
+        <style>
+            div.label { 
+                font-family: Helvetica; 
+                font-size: 10pt; 
+            }
+            div.labelGreen { 
+                font-family: Helvetica; 
+                font-size: 10pt; 
+                color: #1c9d0f; 
+            }
+            div.labelRed { 
+                font-family: Helvetica; 
+                font-size: 10pt; 
+                color: #9d0f0f; 
+            }
+            div.labelBlue { 
+                font-family: Helvetica; 
+                font-size: 10pt; 
+                color: #4e7deb;
+            }
+            div.labelCyan { 
+                font-family: Helvetica; 
+                font-size: 10pt; 
+                color: #0f8f9d;
+            }
+            
+
+            div.prototype {
+                display: none;
+            }
+            x-box.prototype {
+                display: none;
+            }
+            div.moduleDiv {
+                -webkit-transform: translate(0px, 0px);
+                transform: translate(0px, 0px);
+            }
+
+            div.status {
+                width: 15px;
+                height: 15px;
+                margin-right:5px;
+                border: 1px solid grey;
+                border-radius: 1px;
+                background-color: white;
+            }
+
+            .tooltip {
+                position: relative;
+                display: inline-block;
+                }
+
+            .tooltip .tooltiptext {
+                visibility: hidden;
+                width: 120px;
+                background-color: #555;
+                color: #fff;
+                text-align: center;
+                border-radius: 3px;
+                padding: 2px 0;
+                position: absolute;
+                z-index: 1;
+                bottom: 125%;
+                left: 50%;
+                margin-left: -60px;
+                opacity: 0;
+                transition: opacity 0.3s;
+                }
+
+                .tooltip .tooltiptext::after {
+                content: "";
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                margin-left: -5px;
+                border-width: 5px;
+                border-style: solid;
+                border-color: #555 transparent transparent transparent;
+                }
+
+                .tooltip:hover .tooltiptext {
+                visibility: visible;
+                opacity: 1;
+                }
+        </style>
+
+
+
+
+
+    </head>
+
+    <body class="mainWindow" onLoad="mainWindowOnLoad(); initCompassCanvas(25);">
+        <x-box style="padding-left:10px; padding-top:10px">
+            <x-button onClick="flightGearClick()">
+                <x-box>
+                  <x-icon name="airplanemode-active"></x-icon>
+                  <x-label>FlightGear...</x-label>
+                </x-box>
+            </x-button>
+            <x-button onClick="ScopexVMClick()">
+                <x-box>
+                  <x-icon name="polymer"></x-icon>
+                  <x-label>Scopex VM</x-label>
+                </x-box>
+            </x-button>
+        </x-box>
+    
+
+        <!--<div id="Positions" style="display:block">-->
+            
+        <x-box>
+            <x-card style="position:relative; left:0px; top: 0px; margin-left:10px; margin-top:10px; padding:10px; width:190px; height:340px;">
+                <div class="label" style="position:absolute; left:5px; top:5px">lat:</div>
+                <div id="gondola-lat" class="label" style="position:absolute; left:90px; top:5px; min-width:100px;">NaN&deg;</div>
+                <div class="label" style="position:absolute; left:5px; top:25px">lon:</div>
+                <div id="gondola-lon" class="label" style="position:absolute; left:90px; top:25px; min-width:100px;">NaN&deg;</div>
+                <div class="labelGreen" style="position:absolute; left:5px; top:45px">alt:</div>
+                <div id="gondola-alt-m" class="labelGreen" style="position:absolute; left:90px; top:45px; min-width:100px;">NaN m</div>
+                <div class="labelGreen" style="position:absolute; left:5px; top:65px">vert speed:</div>
+                <div id="gondola-vs-m" class="labelGreen" style="position:absolute; left:90px; top:65px; min-width:100px;">NaN m/s</div>
+
+                <div class="label" style="position:absolute; left:5px; bottom:5px">p:</div>
+                <div id="met-pressure" class="label" style="position:absolute; left:25px; bottom:5px; min-width:80px;">NaN mbar</div>
+                <div class="label" style="position:absolute; left:100px; bottom:5px">T:</div>
+                <div id="met-temperature" class="label" style="position:absolute; left:120px; bottom:5px; min-width:100px;">NaN &deg;C</div>
+            </x-card>
+
+            <x-card style="position:relative; left:0px; top: 0px; margin-left:10px; margin-top:10px; padding:10px; width:340px; height:340px;">
+                <img id="compass" src="media/Compass512.png" style="display:none;">
+                <div id="compass-gnd-speed" class="labelGreen" style="position:absolute; left:5px; top:0px;">gs: NaN m/s @ NaN&deg;</div>
+                <div id="compass-air-speed" class="labelRed" style="text-align: right; position:absolute; right:5px; top:0px; width:150px;">as: NaN m/s @ NaN&deg;</div>
+                <div id="compass-wind-speed" class="labelCyan" style="position:absolute; left:5px; bottom:0px; width:150px;">as: NaN m/s @ NaN&deg;</div>
+                <div id="compass-heading" class="label" style="text-align:center; position:absolute; left:125px; top:15px; min-width:100px;">NaN&deg;</div>
+
+                <div id="compass-thrust-left-N" class="labelBlue" style="text-align: center; position:absolute; left:0px; top:130px; width:90px;">NaN N</div>
+                <div id="compass-thrust-left-rpm" class="labelBlue" style="text-align: center; position:absolute; left:0px; top:145px; width:90px;">NaN rpm</div>
+                <div id="compass-thrust-right-N" class="labelBlue" style="text-align: center; position:absolute; right:0px; top:130px; width:90px;">NaN N</div>
+                <div id="compass-thrust-right-rpm" class="labelBlue" style="text-align: center; position:absolute; right:0px; top:145px; width:90px;">NaN rpm</div>
+
+                <canvas id="compassCanvas" width="320" height="320" style="border:none;"></canvas>
+            </x-card>
+
+        </x-box>
+
+        <x-card style="position:relative; left:0px; top:-50px; margin-left:10px; width:540px; height:125px; padding:10px;">
+            <x-box style="vertical-align:top">
+                <!--<x-label style="width:100px;"><b>Autopilot:</b></x-label>-->
+                <x-radios>
+                    <x-box>
+                        <x-radio onclick="autopilotModeChange()" id="ap-mode-power"></x-radio>
+                        <x-label for="third-radio" id="label-3" style="width:100px">motor power</x-label>
+                        <x-label style="width:30px">sum</x-label>
+                          <x-numberinput id="ap-power-sum" onchange="autopilotChangePower(this)" skin="condensed" style="width:50px;" step="10" value="0" min="0" max="2000"><x-stepper></x-stepper></x-numberinput>  
+                        <x-numberinput id="ap-power-left" onchange="autopilotChangePower(this)" skin="condensed" style="margin-left:10px; width:50px;" step="10" value="0" min="0" max="1000"><x-stepper></x-stepper></x-numberinput>  
+                        <x-slider ondblclick="this.value=0; autopilotChangePower(this)" onchange="autopilotChangePower(this)" id="ap-power-slider" style="margin-left:5px; width:180px;" min="-100" max="100" value="0" step="1">
+                            <x-label value="-100">L</x-label>
+                            <x-label value="0">0</x-label>
+                            <x-label value="100">R</x-label>
+                      </x-slider>
+                      <x-numberinput id="ap-power-right" onchange="autopilotChangePower(this)" skin="condensed" style="margin-left:5px; width:50px;" step="10" value="0" min="0" max="1000"><x-stepper></x-stepper></x-numberinput>  
+                    
+                    </x-box> 
+                    <x-box>
+                      <x-radio onclick="autopilotModeChange()" id="ap-mode-rpm" toggled></x-radio>
+                      <x-label for="first-radio" id="label-1" style="width:100px">motor rpm</x-label>
+                      <x-label style="width:30px">sum</x-label>
+                      <x-numberinput id="ap-rpm-sum" onchange="autopilotChangeRpm(this)" skin="condensed" style="width:50px;" step="10" value="0" min="0" max="3000"><x-stepper></x-stepper></x-numberinput>  
+                      <x-numberinput id="ap-rpm-left" onchange="autopilotChangeRpm(this)" skin="condensed" style="margin-left:10px; width:50px;" step="10" value="0" min="0" max="1500"><x-stepper></x-stepper></x-numberinput>  
+                      <x-slider ondblclick="this.value=0; autopilotChangeRpm(this)" onchange="autopilotChangeRpm(this)" id="ap-rpm-slider" style="margin-left:5px; width:180px;" min="-100" max="100" value="0" step="1">
+                        <x-label value="-100">L</x-label>
+                        <x-label value="0">0</x-label>
+                        <x-label value="100">R</x-label>
+                      </x-slider>
+                      <x-numberinput id="ap-rpm-right" onchange="autopilotChangeRpm(this)" skin="condensed" style="margin-left:5px; width:50px;" step="10" value="0" min="0" max="1500"><x-stepper></x-stepper></x-numberinput>  
+                    
+                    </x-box>
+                    <x-box>
+                      <x-radio disabled onclick="autopilotModeChange()" id="ap-mode-heading"></x-radio>
+                      <x-label for="second-radio" id="label-2" style="width:100px;">heading</x-label>
+                      <x-label>todo...</x-label>
+                      
+                    </x-box>
+                  </x-radios>
+            </x-box>
+        </x-card>
+
+        <!--- Motors: -->
+        <x-card style="position:relative; left:0px; top:-70px; margin-left:10px; width:540px; height:55px; padding:10px;">
+            <x-box style="vertical-align:top">
+                <x-label style="width:80px">motors:</x-label>
+                <x-label id="motor-power-left" style="width:70px; text-align:right;">NaN W</x-label>
+                <x-progressbar id="motor-power-progress-left" style="margin-left:10px; width:135px;" max="1200" value="0"></x-progressbar>
+                <x-progressbar id="motor-power-progress-right" style="margin-left:15px; width:135px;" max="1200" value="0"></x-progressbar>
+                <x-label id="motor-power-right" style="margin-left:5px; width:50px; text-align:left;">NaN W</x-label>
+            </x-box>
+            <x-box style="vertical-align:top; margin-top:3px;">
+                <x-label style="width:80px"></x-label>
+                <x-label id="motor-rpm-left" style="width:70px; text-align:right;">NaN rpm</x-label>
+                <x-progressbar id="motor-rpm-progress-left" style="margin-left:10px; width:135px;" max="2000" value="0"></x-progressbar>
+                <x-progressbar id="motor-rpm-progress-right" style="margin-left:15px; width:135px;" max="2000" value="0"></x-progressbar>
+                <x-label id="motor-rpm-right" style="margin-left:5px; width:60px; text-align:left;">NaN rpm</x-label>
+            </x-box>
+        </x-card>
+
+        <!--- Batteries: -->
+        <x-card style="position:relative; left:0px; top:-90px; margin-left:10px; width:540px; height:115px; padding:10px;">
+            <!-- 28V: -->
+            <x-box style="vertical-align:top">
+                <x-label style="width:80px">28V batt:</x-label>
+                <x-label id="battery-28-energy" style="width:70px; text-align:right;">NaN Wh</x-label>
+                <x-progressbar id="battery-28-energy-progress" style="margin-left:10px; width:255px;" max="100" value="0"></x-progressbar>
+                <x-label id="battery-28-voltage" style="margin-left:15px; width:70px; text-align:left;">(NaN V)</x-label>
+            </x-box>
+            <x-box style="vertical-align:top; margin-top:3px;">
+                <x-label style="width:80px"></x-label>
+                <x-label id="battery-28-power" style="width:70px; text-align:right;">NaN W</x-label>
+                <x-progressbar id="battery-28-power-progress" style="margin-left:10px; width:255px;" max="5000" value="0"></x-progressbar>
+            </x-box>
+            <!-- 100V: -->
+            <x-box style="vertical-align:top; margin-top:15px;">
+                <x-label style="width:80px">100V batt:</x-label>
+                <x-label id="battery-100-energy" style="width:70px; text-align:right;">NaN Wh</x-label>
+                <x-progressbar id="battery-100-energy-progress" style="margin-left:10px; width:255px;" max="100" value="0"></x-progressbar>
+                <x-label id="battery-100-voltage" style="margin-left:15px; width:70px; text-align:left;">(NaN V)</x-label>
+            </x-box>
+            <x-box style="vertical-align:top; margin-top:3px;">
+                <x-label style="width:80px"></x-label>
+                <x-label id="battery-100-power" style="width:70px; text-align:right;">NaN W</x-label>
+                <x-progressbar id="battery-100-power-progress" style="margin-left:10px; width:255px;" max="5000" value="0"></x-progressbar>
+            </x-box>
+        </x-card>
+
+            <!--
+            <x-card vertical style="margin-left:10px; margin-top:10px; width:95%; height:400px; padding:10px;">
+            
+                <x-label><b>Positions</b></x-label>
+
+
+                <x-box>
+                    <x-label style="padding-top:10px; width:120px;">Latitude:</x-label>
+                    <x-label id="gondola-lat" style="padding-top:10px; width:100px; text-align:right; padding-right:20px;"></x-label>
+                    <x-label style="margin-left:60px; padding-top:10px; width:120px;">Longitude:</x-label>
+                    <x-label id="gondola-lon" style="padding-top:10px; width:100px; text-align:right; padding-right:20px;"></x-label>
+                </x-box>
+                <x-box>
+                    <x-label style="padding-top:10px; width:120px;">Altitude:</x-label>
+                    <x-label id="gondola-alt-m" style="padding-top:10px; width:100px; text-align:right; padding-right:20px;"></x-label>
+                    <x-label style="margin-left:60px; padding-top:10px; width:120px;">Altitude:</x-label>
+                    <x-label id="gondola-alt-ft" style="padding-top:10px; width:100px; text-align:right; padding-right:20px;"></x-label>
+                </x-box>
+                <x-box>
+                    <x-label style="padding-top:10px; width:120px;">Vertical speed:</x-label>
+                    <x-label id="gondola-vs-m" style="padding-top:10px; width:100px; text-align:right; padding-right:20px;"></x-label>
+                    <x-label style="margin-left:60px; padding-top:10px; width:120px;">Vertical speed:</x-label>
+                    <x-label id="gondola-vs-ft" style="padding-top:10px; width:100px; text-align:right; padding-right:20px;"></x-label>
+                </x-box>
+
+                <x-box></x-box>
+                <x-box>
+                    <x-label style="padding-top:0px; width:100px;">Heading:</x-label>
+                    <x-label id="gondola-heading-txt" style="padding-top:0px; width:80px; text-align:right; padding-right:20px;"></x-label>
+                    <x-slider style="width:300px;" min="0" max="360" value="0" id="gondola-heading-slider" step="1" skin="arrow">
+                        <x-label value="0">N</x-label>
+                        <x-label value="90">E</x-label>
+                        <x-label value="180">S</x-label>
+                        <x-label value="270">W</x-label>
+                        <x-label value="360">N</x-label>
+                      </x-slider>
+                </x-box>
+                <x-box></x-box>
+                <x-box>
+                    <x-label style="padding-top:10px; width:100px;">Pitch:</x-label>
+                    <x-label id="PORT-pitch-txt" style="padding-top:10px; width:80px; text-align:right; padding-right:20px;"></x-label>
+                    <x-slider style="width:300px" min="-25" max="25" value="0" id="PORT-pitch-slider" step="1">
+                        <x-label value="-25">nose down</x-label>
+                        <x-label value="0">0&deg;</x-label>
+                        <x-label value="25">up</x-label>
+                      </x-slider>
+                </x-box>
+                <x-box></x-box>
+                <x-box>
+                    <x-label style="padding-top:10px; width:100px;">Roll:</x-label>
+                    <x-label id="PORT-roll-txt" style="padding-top:10px; width:80px; text-align:right; padding-right:20px;"></x-label>
+                    <x-slider style="width:300px" min="-25" max="25" value="0" id="PORT-roll-slider" step="1">
+                        <x-label value="-25">left</x-label>
+                        <x-label value="0">0&deg;</x-label>
+                        <x-label value="25">right</x-label>
+                      </x-slider>
+                </x-box>
+
+                <x-box>
+                    <x-label style="padding-top:10px; width:115px;">Ground Speeds:</x-label>
+                    <x-label style="padding-top:10px; width:40px;">N:</x-label>
+                    <x-label id="gondola-groundspeed-north" style="text-align:right; padding-top:10px; width:87px; padding-right:20px;"></x-label>
+                    <x-label style="padding-top:10px; width:40px;">E:</x-label>
+                    <x-label id="gondola-groundspeed-east" style="text-align:right; padding-top:10px; width:87px; padding-right:20px;"></x-label>
+                    <x-label style="padding-top:10px; width:40px;">up:</x-label>
+                    <x-label id="gondola-groundspeed-up" style="text-align:right; padding-top:10px; width:87px; padding-right:20px;"></x-label>
+                </x-box>
+                <x-box>
+                    <x-label id="gondola-groundspeed-speed-at-heading" style="padding-left: 10px; padding-top:10px; width:115px;"></x-label>
+                    <x-label style="padding-top:10px; width:40px;">Fw:</x-label>
+                    <x-label id="gondola-groundspeed-x" style="text-align:right; padding-top:10px; width:87px; padding-right:20px;"></x-label>
+                    <x-label style="padding-top:10px; width:40px;">R:</x-label>
+                    <x-label id="gondola-groundspeed-y" style="text-align:right; padding-top:10px; width:87px; padding-right:20px;"></x-label>
+                    <x-label style="padding-top:10px; width:40px;">up:</x-label>
+                    <x-label id="gondola-groundspeed-z" style="text-align:right; padding-top:10px; width:87px; padding-right:20px;"></x-label>
+                </x-box>
+                <x-box>
+                    <x-label style="padding-top:10px; width:115px;">Air Speeds:</x-label>
+                    <x-label style="padding-top:10px; width:40px;">N:</x-label>
+                    <x-label id="gondola-airspeed-north" style="text-align:right; padding-top:10px; width:87px; padding-right:20px;"></x-label>
+                    <x-label style="padding-top:10px; width:40px;">E:</x-label>
+                    <x-label id="gondola-airspeed-east" style="text-align:right; padding-top:10px; width:87px; padding-right:20px;"></x-label>
+                    <x-label style="padding-top:10px; width:40px;">up:</x-label>
+                    <x-label id="gondola-airspeed-up" style="text-align:right; padding-top:10px; width:87px; padding-right:20px;"></x-label>
+                </x-box>
+                <x-box>
+                    <x-label id="gondola-airspeed-speed-at-heading" style="padding-left: 10px; padding-top:10px; width:115px;"></x-label>
+                    <x-label style="padding-top:10px; width:40px;">Fw:</x-label>
+                    <x-label id="gondola-airspeed-x" style="text-align:right; padding-top:10px; width:87px; padding-right:20px;"></x-label>
+                    <x-label style="padding-top:10px; width:40px;">R:</x-label>
+                    <x-label id="gondola-airspeed-y" style="text-align:right; padding-top:10px; width:87px; padding-right:20px;"></x-label>
+                    <x-label style="padding-top:10px; width:40px;">up:</x-label>
+                    <x-label id="gondola-airspeed-z" style="text-align:right; padding-top:10px; width:87px; padding-right:20px;"></x-label>
+                </x-box>
+            
+                <x-box>
+                    <x-label style="padding-top:10px; width:95px;">Acceleration:</x-label>
+                    <x-label style="padding-top:10px; width:15px;">X:</x-label>
+                    <x-label id="PORT-a-x" style="text-align:right; padding-top:10px; width:120px; padding-right:20px;"></x-label>
+                    <x-label style="padding-top:10px; width:15px;">Y:</x-label>
+                    <x-label id="PORT-a-y" style="text-align:right; padding-top:10px; width:120px; padding-right:20px;"></x-label>
+                    <x-label style="padding-top:10px; width:15px;">Z:</x-label>
+                    <x-label id="PORT-a-z" style="text-align:right; padding-top:10px; width:120px; padding-right:20px;"></x-label>
+                </x-box>
+                <x-box>
+                    <x-label style="padding-top:10px; width:95px;">Ang. velocity:</x-label>
+                    <x-label style="padding-top:10px; width:15px;">X:</x-label>
+                    <x-label id="PORT-v-angular-x" style="text-align:right; padding-top:10px; width:120px; padding-right:20px;"></x-label>
+                    <x-label style="padding-top:10px; width:15px;">Y:</x-label>
+                    <x-label id="PORT-v-angular-y" style="text-align:right; padding-top:10px; width:120px; padding-right:20px;"></x-label>
+                    <x-label style="padding-top:10px; width:15px;">Z:</x-label>
+                    <x-label id="PORT-v-angular-z" style="text-align:right; padding-top:10px; width:120px; padding-right:20px;"></x-label>
+                </x-box>
+
+
+            </x-card>
+        </div>-->
+    
+
+
+    </body>
+</html>

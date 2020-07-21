@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>SCoPEx Virtual Machine</title>
+        <link rel="stylesheet" href="node_modules/xel/themes/macos.css">
+        <script src="node_modules/xel/xel.min.js"></script>
+        <script src="ScopexVM.js"></script>
+        <script src="modelAtmos.js"></script>
+        <script src="modelPower.js"></script>
+        <script src="modelMotors.js"></script>
+        <!--<link rel="stylesheet" href="./stylesheets/windows.css">
+        <link rel="stylesheet" type="text/css" href="stylesheets/modules.css">-->
+        <style>
+            div.prototype {
+                display: none;
+            }
+            x-box.prototype {
+                display: none;
+            }
+            div.moduleDiv {
+                -webkit-transform: translate(0px, 0px);
+                transform: translate(0px, 0px);
+            }
+        </style>
+    </head>
+    <body class="mainWindow" onLoad="initODELaunch()">
+
+        <x-box style="padding-left:10px; padding-top:2px">
+            <x-label style="width:100px">initial alt:</x-label>
+            <x-input style="width:80px" onChange="updateData()" id="init-alt-m" value=""></x-input>
+            <x-label style="padding-left:5px">m</x-label>
+        </x-box>
+        <x-box style="padding-left:10px; padding-top:2px">
+            <x-label style="width:100px">initial heading:</x-label>
+            <x-input style="width:80px" onChange="updateData()" id="init-heading" value=""></x-input>
+            <x-label style="padding-left:5px">&deg;</x-label>
+        </x-box>
+        <x-box style="padding-left:10px; padding-top:2px">
+            <x-label style="width:100px">payload mass:</x-label>
+            <x-input style="width:80px" onChange="updateData()" id="payload-mass" value=""></x-input>
+            <x-label style="padding-left:5px">kg</x-label>
+        </x-box>
+        <x-box style="padding-left:10px; padding-top:2px">
+            <x-label style="width:100px">pressure:</x-label>
+            <x-input disabled style="width:80px" onChange="updateData()" id="pressure" value=""></x-input>
+            <x-label style="padding-left:5px">mbar</x-label>
+        </x-box>
+        <x-box style="padding-left:10px; padding-top:2px">
+            <x-label style="width:100px">temperature:</x-label>
+            <x-input disabled style="width:80px" onChange="updateData()" id="temperature" value=""></x-input>
+            <x-label style="padding-left:5px">&deg;C</x-label>
+        </x-box>
+
+        <x-box style="padding-left:10px; padding-top:2px">
+            <x-label style="width:100px">wind@payload:</x-label>
+            <x-input onChange="updateData()" style="width:50px" id="wind-speed-gondola" value=""></x-input>
+            <x-label style="width:60px; padding-left:5px">m/s from</x-label>
+            <x-input onChange="updateData()" style="width:50px" id="wind-direction-gondola" value=""></x-input>
+            <x-label style="padding-right:5px; padding-left:5px">&deg;</x-label>
+        </x-box>
+
+        <x-box style="padding-left:10px; padding-top:2px">
+            <x-label style="width:100px">wind@balloon:</x-label>
+            <x-input onChange="updateData()" style="width:50px" id="wind-speed-balloon" value=""></x-input>
+            <x-label style="width:60px; padding-left:5px">m/s from</x-label>
+            <x-input onChange="updateData()" style="width:50px" id="wind-direction-balloon" value=""></x-input>
+            <x-label style="padding-right:5px; padding-left:5px">&deg;</x-label>
+        </x-box>
+
+        <x-box style="padding-left:10px; padding-top:2px">
+            <x-button id="launchBtn" onClick="launchODE()">
+                <x-box>
+                  <x-icon name="play-arrow"></x-icon>
+                  <x-label>launch ODE</x-label>
+                </x-box>
+              </x-button>
+        </x-box>
+
+        <x-box style="position:absolute; left:5px; bottom:5px;">
+            <x-label style="width:50px">Status:</x-label>
+            <x-label id="status">standing by...</x-label>
+        </x-box>
+
+    </body>
+</html>

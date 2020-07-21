@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>New GPS</title>
+        <link rel="stylesheet" href="node_modules/xel/themes/macos.css">
+        <script src="node_modules/xel/xel.min.js"></script>
+        <script src="GPS.js"></script>
+        <!--<link rel="stylesheet" href="./stylesheets/windows.css">
+        <link rel="stylesheet" type="text/css" href="stylesheets/modules.css">-->
+        <style>
+            div.prototype {
+                display: none;
+            }
+            x-box.prototype {
+                display: none;
+            }
+            div.moduleDiv {
+                -webkit-transform: translate(0px, 0px);
+                transform: translate(0px, 0px);
+            }
+        </style>
+    </head>
+
+    <body class="mainWindow">
+        <x-box style="padding-left:10px; padding-top:10px">
+            <x-label style="width:80px">Port:</x-label>
+            <x-input id="COMport" value="COM3"></x-input>
+            <x-box style="padding-left:10px;">
+                <x-switch onClick="switchChange()" id="switch-1"></x-switch>
+                <x-label for="switch-1" id="label-1">off</x-label>
+            </x-box>
+        </x-box>
+
+        <x-box style="padding-left:10px; padding-top:2px">
+            <x-label style="width:80px">Baudrate:</x-label>
+            <x-input id="baudrate" value="115200"></x-input>
+        </x-box>
+
+        <x-box style="padding-left:10px; padding-top:2px">
+            <x-label style="width:80px">Filename:</x-label>
+            <x-input id="filename" value="gps.txt"></x-input>
+        </x-box>
+
+        <x-box style="padding-left:10px; padding-top:10px">
+            <x-label>Raw sensor data: </x-label>
+        </x-box>
+        <x-box style="padding-left:20px"><x-label style="width:50px">lat: </x-label><x-label id="lat"></x-label></x-box>
+        <x-box style="padding-left:20px"><x-label style="width:50px">long: </x-label><x-label id="long"></x-label></x-box>
+        <x-box style="padding-left:20px"><x-label style="width:50px">height: </x-label><x-label id="height"></x-label></x-box>
+
+    </body>
+</html>
