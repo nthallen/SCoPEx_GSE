@@ -9,8 +9,9 @@ var commands = new commandClass();
 // things to share with the virtual machine:
 function VMDataClass() {
   this.world = {};
-  this.ODEPath = "C:\\cygwin64\\home\\mab5410\\scopex-sim\\build\\";
-  this.ODExportPath = "C:\\Users\\mab5410\\AppData\\Roaming\\flightgear.org\\Export\\";
+  this.ODEPath = "C:\\Users\\nort\\Documents\\Documents\\Exp\\SCoPEx\\build-scopex-sim\\";
+  // this.ODExportPath = "C:\\Users\\mab5410\\AppData\\Roaming\\flightgear.org\\Export\\";
+  this.ODExportPath = "C:\\Users\\nort\\Documents\\Documents\\Exp\\SCoPEx\\build-scopex-sim\\";
   this.initLat = 0; // will be updated once the user starts the VM
   this.initLon = 0; // will be updated once the user starts the VM
   this.initAlt = 0; // will be updated once the user starts the VM
@@ -95,8 +96,8 @@ function groundDataClass() {
   this.flightGear.windDirection = 120; // degrees from
   this.flightGear.path = "C:\\Program Files\\FlightGear 2019.1.1\\";
   this.flightGear.aircraftPath = "C:\\Users\\mab5410\\Documents\\FlightGear\\Aircraft\\Scopex\\";
-  this.flightGear.ODEPath = "C:\\cygwin64\\home\\mab5410\\scopex-sim\\build\\";
-  this.flightGear.exportPath = "C:\\Users\\mab5410\\AppData\\Roaming\\flightgear.org\\Export\\";
+  this.flightGear.ODEPath = "C:\\cygwin64\\home\\nort\\Exp\\SCoPEx\\build-scopex-sim\\";
+  this.flightGear.exportPath = "C:\\cygwin64\\home\\nort\\Exp\\SCoPEx\\build-scopex-sim\\";
 
   this.world.EarthRadius = 6356752.3; // m, radius of Earth's ellipsoid at current lat/lon
   
